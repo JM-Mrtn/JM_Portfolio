@@ -1,87 +1,86 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { NextResponse } from "next/server";
 
-const GOOGLE_SHEET_WEBAPP_URL = process.env.GOOGLE_SHEET_WEBAPP_URL;
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-const countFilePath = path.join(process.cwd(), 'data', 'coffee-count.json');
+const SHEET_URL = process.env.GOOGLE_SHEET_WEBAPP_URL;
+const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const KEY = "portfolio:coffee-count";
 
-function ensureFile() {
-  const dir = path.dirname(countFilePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  if (!fs.existsSync(countFilePath)) {
-    fs.writeFileSync(countFilePath, JSON.stringify({ count: 0 }), 'utf8');
-  }
+function response(body, status = 200) {
+  return NextResponse.json(body, {
+    status,
+    headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+  });
 }
 
-async function sheetGet() {
-  if (!GOOGLE_SHEET_WEBAPP_URL) return null;
-  try {
-    const res = await fetch(GOOGLE_SHEET_WEBAPP_URL, {
-      method: 'GET',
-      cache: 'no-store',
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const num = Number(data.count);
-    return Number.isFinite(num) ? num : null;
-  } catch {
-    return null;
-  }
+async function redis(command) {
+  const res = await fetch(REDIS_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${REDIS_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(command),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Storage error ${res.status}`);
+  const payload = await res.json();
+  if (payload.error) throw new Error(payload.error);
+  return payload.result;
 }
 
-async function sheetPost() {
-  if (!GOOGLE_SHEET_WEBAPP_URL) return null;
+async function sheet(method) {
+  const options =
+    method === "GET"
+      ? { method: "GET", cache: "no-store" }
+      : {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "increment" }),
+          cache: "no-store",
+        };
+  const res = await fetch(SHEET_URL, options);
+  if (!res.ok) throw new Error(`Sheet storage error ${res.status}`);
+  const data = await res.json();
+  const count = Number(data.count);
+  if (!Number.isSafeInteger(count) || count < 0)
+    throw new Error("Invalid count from storage");
+  return count;
+}
+
+async function handle(method) {
   try {
-    const res = await fetch(GOOGLE_SHEET_WEBAPP_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'increment' }),
-      cache: 'no-store',
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const num = Number(data.count);
-    return Number.isFinite(num) ? num : null;
-  } catch {
-    return null;
+    if (REDIS_URL && REDIS_TOKEN) {
+      const result = await redis(
+        method === "POST" ? ["INCR", KEY] : ["GET", KEY],
+      );
+      const count = result === null ? 0 : Number(result);
+      if (!Number.isSafeInteger(count) || count < 0)
+        throw new Error("Invalid storage count");
+      return response({ count });
+    }
+    if (SHEET_URL) return response({ count: await sheet(method) });
+    return response(
+      {
+        error:
+          "Persistent coffee counter storage is not configured. Set Upstash Redis or GOOGLE_SHEET_WEBAPP_URL in Vercel.",
+      },
+      503,
+    );
+  } catch (error) {
+    console.error("Coffee counter storage failed:", error);
+    return response(
+      { error: "Unable to save or retrieve the coffee count." },
+      503,
+    );
   }
 }
 
 export async function GET() {
-  if (GOOGLE_SHEET_WEBAPP_URL) {
-    const sheetCount = await sheetGet();
-    if (sheetCount !== null) return NextResponse.json({ count: sheetCount });
-  }
-
-  try {
-    ensureFile();
-    const raw = fs.readFileSync(countFilePath, 'utf8');
-    const data = JSON.parse(raw);
-    return NextResponse.json({ count: data.count ?? 0 });
-  } catch {
-    return NextResponse.json({ count: 0 });
-  }
+  return handle("GET");
 }
-
 export async function POST() {
-  if (GOOGLE_SHEET_WEBAPP_URL) {
-    const newCount = await sheetPost();
-    if (newCount !== null) {
-      return NextResponse.json({ count: newCount });
-    }
-  }
-
-  try {
-    ensureFile();
-    const raw = fs.readFileSync(countFilePath, 'utf8');
-    const data = JSON.parse(raw);
-    const next = { count: (data.count ?? 0) + 1 };
-    fs.writeFileSync(countFilePath, JSON.stringify(next), 'utf8');
-    return NextResponse.json(next);
-  } catch {
-    return NextResponse.json({ count: 0 });
-  }
+  return handle("POST");
 }

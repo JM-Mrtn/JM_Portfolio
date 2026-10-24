@@ -16,8 +16,11 @@ export default function WorkHeader() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/coffee-count")
-      .then((res) => res.json())
+    fetch("/api/coffee-count", { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) throw new Error("Coffee counter unavailable");
+        return res.json();
+      })
       .then((data) => {
         if (!cancelled && typeof data.count === "number") {
           setCoffeeCount(data.count);
@@ -43,11 +46,10 @@ export default function WorkHeader() {
     try {
       const res = await fetch("/api/coffee-count", { method: "POST" });
       const data = await res.json();
-      if (typeof data.count === "number") {
-        setCoffeeCount(data.count);
-      } else {
-        setCoffeeCount(previousCount);
+      if (!res.ok || typeof data.count !== "number") {
+        throw new Error("Coffee count was not saved");
       }
+      setCoffeeCount(data.count);
     } catch {
       setCoffeeCount(previousCount);
     }
