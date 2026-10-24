@@ -106,7 +106,7 @@ function MobileProjects() {
           {projects.map(({ project, apk, iosUrl }) => (
             <div
               key={project.num}
-              className="archive-row"
+              className="archive-row mobile-app-row"
               style={{ cursor: "default" }}
             >
               <span className="archive-row-num">{project.num}</span>
@@ -120,6 +120,7 @@ function MobileProjects() {
                 </div>
               </div>
               <div
+                className="mobile-app-actions"
                 style={{
                   display: "flex",
                   gap: 8,

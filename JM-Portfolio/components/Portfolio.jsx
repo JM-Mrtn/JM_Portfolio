@@ -985,28 +985,11 @@ export default function Portfolio() {
           <div className="circle circle-3" />
         </div>
 
-        <div
-          className="profile-wrap"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-end",
-          }}
-        >
+        <div className="profile-wrap">
           <img
             src="/images/about/JM_Profile.png"
             alt="JOHN MIKE MARTIN"
             className="profile-image"
-            style={{
-              height: "90vh",
-              width: "auto",
-              maxWidth: "none",
-              objectFit: "contain",
-            }}
             draggable={false}
           />
         </div>
