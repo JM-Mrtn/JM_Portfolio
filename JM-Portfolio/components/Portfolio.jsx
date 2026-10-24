@@ -15,10 +15,49 @@ import {
   Minus,
 } from "lucide-react";
 import Link from "next/link";
-import { PROJECTS } from "../data/projects";
+import { PROJECTS as BASE_PROJECTS } from "../data/projects";
 import Header from "./Header";
 import TypewriterTitle from "./TypewriterTitle";
 import Reveal from "./Reveal";
+
+// Keep the original Work Gallery carousel and use the PNG covers from
+// public/images/projects/.  Only gallery data is changed.
+const COVER_IMAGES = [
+  "/images/projects/Lumispire.png",
+  "/images/projects/Hotel_and_Resort.png",
+  "/images/projects/Training_and_Assessment.png",
+  "/images/projects/Manpower_Services.png",
+  "/images/projects/Silingan_Lifestyle_Solutions.png",
+];
+
+const PROJECTS = [
+  ...BASE_PROJECTS.map((project, index) => ({
+    ...project,
+    image: COVER_IMAGES[index] || project.image,
+  })),
+  {
+    num: "06",
+    title: "Personal Portfolio",
+    category: "Portfolio Website",
+    desc: "A personal portfolio showcasing my background, technical skills, selected projects, and professional journey.",
+    tech: [],
+    awards: [],
+    image: "/images/projects/Personal_Portfolio.png",
+    link: "https://martin-portfolio-three.vercel.app/",
+    linkText: "View Portfolio →",
+  },
+  {
+    num: "07",
+    title: "Work Portfolio",
+    category: "Project Portfolio",
+    desc: "A dedicated work portfolio featuring my software development projects, systems, and technical work.",
+    tech: [],
+    awards: [],
+    image: "/images/projects/Work_Portfolio.png",
+    link: "https://jm-portfolio-woad.vercel.app/",
+    linkText: "View Portfolio →",
+  },
+];
 
 const SKILLS = [
   {
@@ -1336,8 +1375,8 @@ export default function Portfolio() {
           <TypewriterTitle
             text={
               isMobile
-                ? "Web & Mobile Developer.\nAI Automation."
-                : "Web & Mobile Developer. AI Automation."
+                ? "Web & Mobile Developer.\nAI Integration."
+                : "Web & Mobile Developer. AI Integration."
             }
           />
         </Reveal>
@@ -1375,7 +1414,7 @@ export default function Portfolio() {
                     University - MOA, specializing in Mobile and Web
                     Applications. I focus on developing responsive web and
                     mobile platforms, full-stack applications, and
-                    database-driven systems. I also work with AI Automation and
+                    database-driven systems. I also work with AI integration and
                     automation to build practical solutions for real-world
                     needs.
                   </p>

@@ -8,13 +8,13 @@ import Reveal from "./Reveal";
 
 const TECH_LOGOS = {
   "Python Django": "/images/logos/django.png",
-  "PHP": "/images/logos/php.png",
-  "MySQL": "/images/logos/mysql.png",
-  "HTML": "/images/logos/html.png",
-  "CSS": "/images/logos/css.png",
-  "JavaScript": "/images/logos/js.png",
+  PHP: "/images/logos/php.png",
+  MySQL: "/images/logos/mysql.png",
+  HTML: "/images/logos/html.png",
+  CSS: "/images/logos/css.png",
+  JavaScript: "/images/logos/js.png",
   "CodeIgniter 4": "/images/logos/codeigniter.png",
-  "Python": "/images/logos/python.png",
+  Python: "/images/logos/python.png",
   "Python Flask": "/images/logos/flask.png",
 };
 
@@ -32,13 +32,16 @@ function TechTag({ tech }) {
 
 export default function TechnicalArchive({ projects = [] }) {
   return (
-    <section className="archive-section" id="technical">
+    <section className="archive-section" id="web">
       <Reveal>
         <div className="archive-header">
           <div className="archive-header-left">
             <div className="section-label">Archive</div>
-            <TypewriterTitle text="Technical Projects" />
-            <p className="archive-description">A complete collection of my technical work, systems, and digital projects.</p>
+            <TypewriterTitle text="Web Projects" />
+            <p className="archive-description">
+              Explore my web-based systems and applications. Select a project to
+              visit its live website.
+            </p>
           </div>
         </div>
       </Reveal>
@@ -58,7 +61,9 @@ export default function TechnicalArchive({ projects = [] }) {
                 <div className="archive-row-title">{project.title}</div>
                 <div className="archive-row-desc">{project.desc}</div>
                 <div className="archive-row-tags">
-                  <span className="archive-row-category">{project.category}</span>
+                  <span className="archive-row-category">
+                    {project.category}
+                  </span>
                   <div className="archive-row-tech">
                     {project.tech.map((t) => (
                       <TechTag key={t} tech={t} />

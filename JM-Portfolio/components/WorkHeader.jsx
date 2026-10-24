@@ -16,16 +16,18 @@ export default function WorkHeader() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/coffee-count')
-      .then(res => res.json())
-      .then(data => {
-        if (!cancelled && typeof data.count === 'number') {
+    fetch("/api/coffee-count")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && typeof data.count === "number") {
           setCoffeeCount(data.count);
         }
         setCoffeeLoading(false);
       })
       .catch(() => setCoffeeLoading(false));
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const scrollToTop = () => {
@@ -39,9 +41,9 @@ export default function WorkHeader() {
     const optimisticCount = previousCount + 1;
     setCoffeeCount(optimisticCount);
     try {
-      const res = await fetch('/api/coffee-count', { method: 'POST' });
+      const res = await fetch("/api/coffee-count", { method: "POST" });
       const data = await res.json();
-      if (typeof data.count === 'number') {
+      if (typeof data.count === "number") {
         setCoffeeCount(data.count);
       } else {
         setCoffeeCount(previousCount);
@@ -85,46 +87,108 @@ export default function WorkHeader() {
 
   return (
     <>
-      <nav ref={navRef} className={`nav-bar ${scrolled ? "scrolled" : ""} ${menuOpen ? "nav-bar--expanded" : ""}`}>
+      <nav
+        ref={navRef}
+        className={`nav-bar ${scrolled ? "scrolled" : ""} ${menuOpen ? "nav-bar--expanded" : ""}`}
+      >
         <div className="nav-mobile-header">
           <a href="/" className="nav-left">
-            <div className="nav-logo">R</div>
-            <div className="nav-brand">RICHARD</div>
+            <div className="nav-logo">
+              <span>JM</span>
+            </div>
+            <div className="nav-brand">MARTIN</div>
           </a>
-          <ThemeToggle className="md:hidden nav-theme-toggle" style={{ position: 'relative', zIndex: 210 }} />
-          <button className="md:hidden nav-menu-btn" onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, position: 'relative', zIndex: 210 }}>
+          <ThemeToggle
+            className="md:hidden nav-theme-toggle"
+            style={{ position: "relative", zIndex: 210 }}
+          />
+          <button
+            className="md:hidden nav-menu-btn"
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 8,
+              position: "relative",
+              zIndex: 210,
+            }}
+          >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
         {menuOpen && (
           <div className="nav-mobile-menu">
             <div className="nav-mobile-menu-inner">
-              <a href="#technical" className="nav-link" onClick={() => setMenuOpen(false)}>Technical</a>
-              <a href="#digital" className="nav-link" onClick={() => setMenuOpen(false)}>Digital</a>
-              <a href="/#contact" className="nav-cta" style={{ textAlign: 'center' }} onClick={() => setMenuOpen(false)}>Hire Me</a>
+              <a
+                href="#web"
+                className="nav-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                Web
+              </a>
+              <a
+                href="#mobile"
+                className="nav-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                Mobile
+              </a>
+              <a
+                href="/#contact"
+                className="nav-cta"
+                style={{ textAlign: "center" }}
+                onClick={() => setMenuOpen(false)}
+              >
+                Hire Me
+              </a>
             </div>
           </div>
         )}
         <div className="nav-center hidden md:flex">
-          <a href="#technical" className="nav-link">Technical</a>
-          <a href="#digital" className="nav-link">Digital</a>
+          <a href="#web" className="nav-link">
+            Web
+          </a>
+          <a href="#mobile" className="nav-link">
+            Mobile
+          </a>
         </div>
         <div className="nav-right">
-          <ThemeToggle className="nav-theme-toggle hidden md:inline-flex" style={{ marginRight: 8 }} />
-          <a href="/#contact" className="nav-cta hidden md:block">Hire Me</a>
+          <ThemeToggle
+            className="nav-theme-toggle hidden md:inline-flex"
+            style={{ marginRight: 8 }}
+          />
+          <a href="/#contact" className="nav-cta hidden md:block">
+            Hire Me
+          </a>
         </div>
       </nav>
 
       {showBackToTop && !menuOpen && (
-        <button className="back-to-top" onClick={scrollToTop} aria-label="Back to top">
+        <button
+          className="back-to-top"
+          onClick={scrollToTop}
+          aria-label="Back to top"
+        >
           <ArrowUp size={20} />
         </button>
       )}
 
-      <a href="#" className={`coffee-btn${showCoffee ? " coffee-btn--visible" : ""}`} aria-label="Get me a coffee" onClick={handleCoffeeClick}>
+      <a
+        href="#"
+        className={`coffee-btn${showCoffee ? " coffee-btn--visible" : ""}`}
+        aria-label="Get me a coffee"
+        onClick={handleCoffeeClick}
+      >
         <span className="coffee-text">Get me a coffee</span>
-        <img src="/images/gif/coffee.gif" alt="Coffee" className={`coffee-gif${coffeePop ? " coffee-gif--pop" : ""}`} />
-        <span className="coffee-count">{coffeeLoading ? "..." : coffeeCount}</span>
+        <img
+          src="/images/gif/coffee.gif"
+          alt="Coffee"
+          className={`coffee-gif${coffeePop ? " coffee-gif--pop" : ""}`}
+        />
+        <span className="coffee-count">
+          {coffeeLoading ? "..." : coffeeCount}
+        </span>
       </a>
     </>
   );
