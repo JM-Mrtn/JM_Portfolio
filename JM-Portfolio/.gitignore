@@ -1,3 +1,5 @@
 node_modules
 .next
-data/
+# Keep project definitions in Git for Vercel builds
+# Ignore only generated or local data files
+data/coffee-count.json
